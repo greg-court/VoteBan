@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 
 import com.codingguru.voteban.VoteBan;
 import com.codingguru.voteban.handlers.VoteHandler;
@@ -21,6 +24,8 @@ public class StartVoteTask extends Schedule {
 	private List<UUID> playersVoted;
 	private int playersOnline;
 	private int countdown;
+	private final int requiredVotes;
+	private final BossBar bossBar;
 
 	public StartVoteTask(VoteBan plugin, Player target, Player sender, String reason, VoteType voteType,
 			boolean addVote) {
@@ -35,6 +40,11 @@ public class StartVoteTask extends Schedule {
 		this.playersVoted = Lists.newArrayList();
 		this.countdown = voteType.getCountdown();
 		this.playersOnline = Bukkit.getOnlinePlayers().size();
+		this.requiredVotes = voteType.getVoteCalculatorType()
+				.requiredVotes(voteType.getMinVotes(), playersOnline);
+		// Native API bars work independently of the vanilla /bossbar command.
+		this.bossBar = voteType == VoteType.MUTE
+				? Bukkit.createBossBar("", BarColor.YELLOW, BarStyle.SOLID) : null;
 		VoteHandler.getInstance().addAlreadyVotedPlayer(playerUUID, voteType);
 
 		if (voteType.isStoppingChat()) {
@@ -47,10 +57,12 @@ public class StartVoteTask extends Schedule {
 		if (addVote) {
 			addVote(sender);
 		}
+		if (VoteHandler.getInstance().getActiveVote() == this) updateBossBar();
 	}
 
 	@Override
 	public void run() {
+		updateBossBar();
 		if (isBroadcastingTime(countdown)) {
 			new MessageBuilder.Builder(voteType.getBroadcastMessagePath(), getDefaultBroadcastMessage())
 					.set("%player%", playerName).set("%timeleft%", String.valueOf(countdown)).set("%reason%", reason)
@@ -143,6 +155,7 @@ public class StartVoteTask extends Schedule {
 
 	public void addVote(Player sender) {
 		playersVoted.add(sender.getUniqueId());
+		updateBossBar();
 
 		new MessageBuilder.Builder("successful-vote", LangDefaults.SUCCESSFUL_VOTE).set("%player%", playerName)
 				.send(sender);
@@ -155,5 +168,24 @@ public class StartVoteTask extends Schedule {
 		if (getVotes() >= getMinimumRequiredVotes() && isInstant()) {
 			completeTask();
 		}
+	}
+
+	private void updateBossBar() {
+		if (bossBar == null) return;
+		bossBar.setTitle("Mute " + playerName + ": " + getVotes() + "/" + requiredVotes
+				+ " votes · " + countdown + "s left · /addvote");
+		bossBar.setProgress(Math.min(1.0, getVotes() / (double) Math.max(1, requiredVotes)));
+		for (Player viewer : bossBar.getPlayers()) {
+			if (!viewer.isOnline()) bossBar.removePlayer(viewer);
+		}
+		for (Player viewer : Bukkit.getOnlinePlayers()) {
+			if (!bossBar.getPlayers().contains(viewer)) bossBar.addPlayer(viewer);
+		}
+	}
+
+	@Override
+	public void cancel() {
+		if (bossBar != null) bossBar.removeAll();
+		super.cancel();
 	}
 }
