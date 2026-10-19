@@ -11,6 +11,7 @@ import com.codingguru.voteban.commands.VoteKickCmd;
 import com.codingguru.voteban.commands.VoteMuteCmd;
 import com.codingguru.voteban.commands.VoteReloadCmd;
 import com.codingguru.voteban.handlers.ManagerHandler;
+import com.codingguru.voteban.handlers.VoteHandler;
 import com.codingguru.voteban.listeners.AsyncPlayerChat;
 import com.codingguru.voteban.managers.LanguageManager;
 import com.codingguru.voteban.scheduler.FilterTask;
@@ -52,13 +53,22 @@ public class VoteBan extends JavaPlugin {
 	}
 	
 	public void onDisable() {
+		cancelActiveVote();
 		ManagerHandler.getInstance().stopAll();
 	}
 
 	public void reload() {
+		cancelActiveVote();
 		ManagerHandler.getInstance().stopAll();
 		reloadConfig();
 		ManagerHandler.getInstance().startAll();
+	}
+
+	private void cancelActiveVote() {
+		VoteHandler handler = VoteHandler.getInstance();
+		if (handler.hasActiveVote()) handler.getActiveVote().cancel();
+		handler.setActiveVote(null);
+		handler.setChatDisabled(false);
 	}
 	
 	private void registerHooksAndListeners() {
