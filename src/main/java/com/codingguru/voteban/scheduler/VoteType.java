@@ -136,8 +136,9 @@ public enum VoteType {
 			player.kickPlayer(kickMessage);
 			break;
 		case MUTE:
+			// Use Essentials' exact account-name lookup; offline UUID command arguments are not supported.
 			String muteCommand = VoteBan.getInstance().getConfig().getString("vote-mute.mute-cmd")
-					.replaceAll("%player%", playerName).replaceAll("%reason%", reason);
+					.replace("%player%", playerName).replace("%reason%", reason);
 			Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), muteCommand);
 			break;
 		}
