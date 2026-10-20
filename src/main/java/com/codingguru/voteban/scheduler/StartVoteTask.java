@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -19,6 +20,7 @@ public class StartVoteTask extends Schedule {
 
 	private final UUID playerUUID;
 	private final String playerName;
+	private final String playerDisplayName;
 	private final String reason;
 	private final VoteType voteType;
 	private List<UUID> playersVoted;
@@ -36,6 +38,8 @@ public class StartVoteTask extends Schedule {
 				: reason;
 		this.playerUUID = target.getUniqueId();
 		this.playerName = target.getName();
+		// Show the nickname in the bar only; account name/UUID still own voting and punishment.
+		this.playerDisplayName = target.getDisplayName();
 		this.voteType = voteType;
 		this.playersVoted = Lists.newArrayList();
 		this.countdown = voteType.getCountdown();
@@ -172,7 +176,7 @@ public class StartVoteTask extends Schedule {
 
 	private void updateBossBar() {
 		if (bossBar == null) return;
-		bossBar.setTitle("Mute " + playerName + ": " + getVotes() + "/" + requiredVotes
+		bossBar.setTitle("Mute " + playerDisplayName + ChatColor.RESET + ": " + getVotes() + "/" + requiredVotes
 				+ " votes · " + countdown + "s left · /addvote");
 		bossBar.setProgress(Math.min(1.0, getVotes() / (double) Math.max(1, requiredVotes)));
 		for (Player viewer : bossBar.getPlayers()) {
