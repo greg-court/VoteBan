@@ -31,15 +31,20 @@ public class StartVoteTask extends Schedule {
 
 	public StartVoteTask(VoteBan plugin, Player target, Player sender, String reason, VoteType voteType,
 			boolean addVote) {
+		this(plugin, target.getUniqueId(), target.getName(), target.getDisplayName(), sender, reason, voteType, addVote);
+	}
+
+	public StartVoteTask(VoteBan plugin, UUID targetId, String accountName, String displayName, Player sender,
+			String reason, VoteType voteType, boolean addVote) {
 		super(plugin);
 		VoteHandler.getInstance().setActiveVote(this);
 		this.reason = reason == null
 				? new MessageBuilder.Builder("no-ban-reason", LangDefaults.NO_BAN_REASON).buildString()
 				: reason;
-		this.playerUUID = target.getUniqueId();
-		this.playerName = target.getName();
+		this.playerUUID = targetId;
+		this.playerName = accountName;
 		// Show the nickname in the bar only; account name/UUID still own voting and punishment.
-		this.playerDisplayName = target.getDisplayName();
+		this.playerDisplayName = displayName;
 		this.voteType = voteType;
 		this.playersVoted = Lists.newArrayList();
 		this.countdown = voteType.getCountdown();

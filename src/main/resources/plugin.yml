@@ -1,8 +1,9 @@
 name: VoteBan
-version: 2.1.1-semianarchy.2
+version: 2.1.1-semianarchy.3
 api-version: 1.13
 main: com.codingguru.voteban.VoteBan
 authors: [CodingGuru]
+softdepend: [Essentials, DiscordSRV, LuckPerms]
 folia-supported: true
 commands:
   votereload:

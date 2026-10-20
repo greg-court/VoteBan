@@ -10,6 +10,7 @@ import com.codingguru.voteban.commands.VoteBanCmd;
 import com.codingguru.voteban.commands.VoteKickCmd;
 import com.codingguru.voteban.commands.VoteMuteCmd;
 import com.codingguru.voteban.commands.VoteReloadCmd;
+import com.codingguru.voteban.discord.LinkedDiscordMutes;
 import com.codingguru.voteban.handlers.ManagerHandler;
 import com.codingguru.voteban.handlers.VoteHandler;
 import com.codingguru.voteban.listeners.AsyncPlayerChat;
@@ -23,6 +24,7 @@ public class VoteBan extends JavaPlugin {
 
 	private static VoteBan INSTANCE;
 	private ServerTypeUtil serverType;
+	private LinkedDiscordMutes discordMutes;
 
 	@Override
 	public void onEnable() {
@@ -47,12 +49,18 @@ public class VoteBan extends JavaPlugin {
 		ManagerHandler.getInstance().startAll();
 
 		registerHooksAndListeners();
+		if (getServer().getPluginManager().isPluginEnabled("DiscordSRV")
+				&& getServer().getPluginManager().isPluginEnabled("Essentials")
+				&& getServer().getPluginManager().isPluginEnabled("LuckPerms")) {
+			discordMutes = new LinkedDiscordMutes(this);
+		}
 
 		FilterTask filterTask = new FilterTask(this);
 		filterTask.runTaskAtFixedRate(20 * 300);
 	}
 	
 	public void onDisable() {
+		if (discordMutes != null) discordMutes.close();
 		cancelActiveVote();
 		ManagerHandler.getInstance().stopAll();
 	}
@@ -105,6 +113,10 @@ public class VoteBan extends JavaPlugin {
 
 	public ServerTypeUtil getServerType() {
 		return serverType;
+	}
+
+	public LinkedDiscordMutes getDiscordMutes() {
+		return discordMutes;
 	}
 
 	public static VoteBan getInstance() {
