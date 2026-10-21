@@ -118,8 +118,9 @@ public class VoteMuteCmd implements TabExecutor {
 		}
 
 		if (!VoteHandler.getInstance().isVoteAllowed(VoteType.MUTE, target.getUniqueId())) {
-			new MessageBuilder.Builder("already-voted-for", LangDefaults.ALREADY_VOTED_FOR).set("%player%", target.getName())
-					.send(sender);
+			new MessageBuilder.Builder("vote-mute-cooldown", LangDefaults.VOTE_MUTE_COOLDOWN)
+					.set("%player%", target.getName())
+					.set("%time%", VoteHandler.getInstance().getRemainingCooldown(target.getUniqueId())).send(sender);
 			return;
 		}
 

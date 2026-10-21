@@ -68,6 +68,11 @@ public class VoteHandler {
 		return true;
 	}
 
+	public String getRemainingCooldown(UUID uuid) {
+		VotedDetails details = alreadyVotedPlayers.get(uuid);
+		return details == null ? "0s" : details.getRemainingTime(System.currentTimeMillis());
+	}
+
 	public void removeAlreadyVotedPlayer(UUID uuid) {
 		this.alreadyVotedPlayers.remove(uuid);
 	}

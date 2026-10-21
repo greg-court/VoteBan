@@ -17,13 +17,17 @@ codes; punishment arguments never receive presentation formatting.
 Time does not control the bar's fill. Completion, plugin disable and reload remove the bar.
 There is no additional vote timer, command parser, chat scraping or private API.
 
+Blocked repeat vote-mutes show the time remaining on the existing target cooldown,
+rounded up to a whole second (for example, `3m 42s`). The new language key is added
+through the normal message loader; existing language overrides remain intact.
+
 Build and test with Java 25 and Maven:
 
 ```sh
 mvn -B -ntp clean verify
 ```
 
-The shaded artifact is `target/voteban-2.1.1-semianarchy.5.jar`. The homelab
+The shaded artifact is `target/voteban-2.1.1-semianarchy.6.jar`. The homelab
 manifest pins its release URL, SHA-256 and source revision. This is a local
 enhancement, not a release published or supported by the upstream author.
 

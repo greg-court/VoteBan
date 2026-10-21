@@ -18,6 +18,7 @@ public final class LangDefaults {
     public static final String VOTE_ADDED = "&e%votedplayer% has voted for %target% to be %type%.";
     public static final String KICK_MESSAGE = "&cYou have been voted to be kicked by players of the server!\nKick Reason: %reason%";
     public static final String ALREADY_VOTED_FOR = "&c%player% recently had a vote started on them so cannot be voted on again.";
+    public static final String VOTE_MUTE_COOLDOWN = "&cYou can start another vote to mute %player% in %time%.";
     public static final String CHAT_DISABLED = "&cChat is currently disabled because there is a vote in progress.";
     public static final String ALREADY_VOTED = "&cYou have already voted for this.";
     public static final String SERVER_OPERATOR = "&cYou cannot ban another server operator. Please demote this player first then execute this command again.";
