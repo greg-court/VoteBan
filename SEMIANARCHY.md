@@ -21,13 +21,18 @@ Blocked repeat vote-mutes show the time remaining on the existing target cooldow
 rounded up to a whole second (for example, `3m 42s`). The new language key is added
 through the normal message loader; existing language overrides remain intact.
 
+With Essentials present, an already-muted target cannot have another mute vote
+started against them. Online and linked offline targets use the same existing
+Essentials flag and absolute expiry as the Discord bridge. Expired offline flags
+do not block votes, and the check never changes or extends a mute.
+
 Build and test with Java 25 and Maven:
 
 ```sh
 mvn -B -ntp clean verify
 ```
 
-The shaded artifact is `target/voteban-2.1.1-semianarchy.6.jar`. The homelab
+The shaded artifact is `target/voteban-2.1.1-semianarchy.7.jar`. The homelab
 manifest pins its release URL, SHA-256 and source revision. This is a local
 enhancement, not a release published or supported by the upstream author.
 

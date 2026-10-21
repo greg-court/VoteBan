@@ -14,6 +14,8 @@ import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.util.Tristate;
 
 import com.codingguru.voteban.VoteBan;
+import com.earth2me.essentials.Essentials;
+import com.codingguru.voteban.util.MuteStatus;
 import com.codingguru.voteban.handlers.VoteHandler;
 import com.codingguru.voteban.scheduler.StartVoteTask;
 import com.codingguru.voteban.scheduler.VoteType;
@@ -115,6 +117,16 @@ public class VoteMuteCmd implements TabExecutor {
 			new MessageBuilder.Builder("cannot-execute-this-player", LangDefaults.CANNOT_EXECUTE_THIS_PLAYER)
 					.set("%player%", target.getName()).send(sender);
 			return;
+		}
+
+		if (Bukkit.getPluginManager().isPluginEnabled("Essentials")) {
+			Essentials essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+			var user = essentials.getUser(target.getUniqueId());
+			if (user != null && MuteStatus.isActive(user.isMuted(), user.getMuteTimeout(), System.currentTimeMillis())) {
+				new MessageBuilder.Builder("already-muted", LangDefaults.ALREADY_MUTED)
+						.set("%player%", target.getName()).send(sender);
+				return;
+			}
 		}
 
 		if (!VoteHandler.getInstance().isVoteAllowed(VoteType.MUTE, target.getUniqueId())) {

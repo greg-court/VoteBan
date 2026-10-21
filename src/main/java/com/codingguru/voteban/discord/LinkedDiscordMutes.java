@@ -1,6 +1,7 @@
 package com.codingguru.voteban.discord;
 
 import com.codingguru.voteban.VoteBan;
+import com.codingguru.voteban.util.MuteStatus;
 import com.earth2me.essentials.Essentials;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.Subscribe;
@@ -84,18 +85,13 @@ public final class LinkedDiscordMutes implements AutoCloseable, Listener {
         UUID uuid = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(event.getAuthor().getId());
         if (uuid == null) return;
         var user = essentials.getUser(uuid);
-        if (user == null || !activeMute(user.isMuted(), user.getMuteTimeout(), System.currentTimeMillis())) return;
+        if (user == null || !MuteStatus.isActive(user.isMuted(), user.getMuteTimeout(), System.currentTimeMillis())) return;
         event.setCancelled(true);
         event.getMessage().delete().reason("Minecraft community mute").queue(
                 ignored -> {},
                 error -> plugin.getLogger().warning("Could not delete muted Discord message "
                         + event.getMessage().getId() + ": " + error.getMessage()));
         plugin.getLogger().info("Blocked server-chat message from muted Minecraft account " + user.getName());
-    }
-
-    static boolean activeMute(boolean muted, long expiry, long now) {
-        // Offline Essentials records can retain the flag after expiry. Never extend it.
-        return muted && (expiry == 0 || expiry > now);
     }
 
     @Override
