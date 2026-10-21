@@ -20,4 +20,9 @@ public class VotedDetails {
 		return endTime;
 	}
 
+	public String getRemainingTime(long now) {
+		long seconds = Math.max(0, Math.ceilDiv(endTime - now, 1000));
+		return seconds >= 60 ? seconds / 60 + "m " + seconds % 60 + "s" : seconds + "s";
+	}
+
 }
