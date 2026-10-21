@@ -7,13 +7,13 @@ public final class LangDefaults {
 	
     public static final String FAILED_VOTE_KICK_BROADCAST = "&a%player% &edid not receive enough votes and will not be kicked from the server.";
     public static final String FAILED_VOTE_BAN_BROADCAST = "&a%player% &edid not receive enough votes and will remain playing this server.";
-    public static final String FAILED_VOTE_MUTE_BROADCAST = "&a%player% &edid not receive enough votes and will remain unmuted.";
+    public static final String FAILED_VOTE_MUTE_BROADCAST = "%player_colour%%player% &edid not receive enough votes and will remain unmuted.";
     public static final String SUCCESSFUL_VOTE_KICK_BROADCAST = "&c&l%player% has been voted to be kicked from the server. Reason: %reason%";
     public static final String SUCCESSFUL_VOTE_BAN_BROADCAST = "&c&l%player% has been voted to be banned from the server. Reason: %reason%";
-    public static final String SUCCESSFUL_VOTE_MUTE_BROADCAST = "&c&l%player% has been voted to be muted from the chat. Reason: %reason%";
+    public static final String SUCCESSFUL_VOTE_MUTE_BROADCAST = "%player_colour%%player%&c&l has been voted to be muted from the chat. Reason: %reason%";
     public static final String VOTE_KICK_BROADCAST = "&eThere is currently a vote kick in progress for &a%player%&e. If you agree this player should be kicked, type &a/addvote&e. Reason: &a%reason%";
     public static final String VOTE_BAN_BROADCAST = "&eThere is currently a vote ban in progress for &a%player%&e. If you agree this player should be banned, type &a/addvote&e. Reason: &a%reason%";
-    public static final String VOTE_MUTE_BROADCAST = "&eThere is currently a vote mute in progress for &a%player%&e. If you agree this player should be muted, type &a/addvote&e. Reason: &a%reason%";
+    public static final String VOTE_MUTE_BROADCAST = "&eThere is currently a vote mute in progress for %player_colour%%player%&e. If you agree this player should be muted, type &a/addvote&e. Reason: &a%reason%";
     public static final String SUCCESSFUL_VOTE = "&eYou have successfully added your vote for %player%.";
     public static final String VOTE_ADDED = "&e%votedplayer% has voted for %target% to be %type%.";
     public static final String KICK_MESSAGE = "&cYou have been voted to be kicked by players of the server!\nKick Reason: %reason%";

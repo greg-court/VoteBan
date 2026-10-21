@@ -21,6 +21,7 @@ public class StartVoteTask extends Schedule {
 	private final UUID playerUUID;
 	private final String playerName;
 	private final String playerDisplayName;
+	private final String playerNameColour;
 	private final String reason;
 	private final VoteType voteType;
 	private List<UUID> playersVoted;
@@ -45,6 +46,7 @@ public class StartVoteTask extends Schedule {
 		this.playerName = accountName;
 		// Show the nickname in the bar only; account name/UUID still own voting and punishment.
 		this.playerDisplayName = displayName;
+		this.playerNameColour = ChatColor.getLastColors(displayName);
 		this.voteType = voteType;
 		this.playersVoted = Lists.newArrayList();
 		this.countdown = voteType.getCountdown();
@@ -74,7 +76,8 @@ public class StartVoteTask extends Schedule {
 		updateBossBar();
 		if (isBroadcastingTime(countdown)) {
 			new MessageBuilder.Builder(voteType.getBroadcastMessagePath(), getDefaultBroadcastMessage())
-					.set("%player%", playerName).set("%timeleft%", String.valueOf(countdown)).set("%reason%", reason)
+					.set("%player_colour%", playerNameColour).set("%player%", playerName)
+					.set("%timeleft%", String.valueOf(countdown)).set("%reason%", reason)
 					.broadcast();
 		}
 
@@ -95,11 +98,13 @@ public class StartVoteTask extends Schedule {
 		if (isSuccessful) {
 			voteType.execute(playerUUID, playerName, reason);
 			new MessageBuilder.Builder(voteType.getSuccessfulMessagePath(), getDefaultSuccessfulMessage())
-					.set("%player%", playerName).set("%timeleft%", String.valueOf(countdown)).set("%reason%", reason)
+					.set("%player_colour%", playerNameColour).set("%player%", playerName)
+					.set("%timeleft%", String.valueOf(countdown)).set("%reason%", reason)
 					.set("%votes%", String.valueOf(getVotes())).broadcast();
 		} else {
 			new MessageBuilder.Builder(voteType.getFailedMessagePath(), getDefaultFailedMessage())
-					.set("%player%", playerName).set("%timeleft%", String.valueOf(countdown)).set("%reason%", reason)
+					.set("%player_colour%", playerNameColour).set("%player%", playerName)
+					.set("%timeleft%", String.valueOf(countdown)).set("%reason%", reason)
 					.set("%votes%", String.valueOf(getVotes())).broadcast();
 		}
 
