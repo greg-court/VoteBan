@@ -181,7 +181,7 @@ public class StartVoteTask extends Schedule {
 
 	private void updateBossBar() {
 		if (bossBar == null) return;
-		bossBar.setTitle("Mute " + playerDisplayName + ChatColor.RESET + ": " + getVotes() + "/" + requiredVotes
+		bossBar.setTitle("Mute " + playerDisplayName + ChatColor.RESET + " · " + getVotes() + "/" + requiredVotes
 				+ " votes · " + countdown + "s left · /addvote");
 		bossBar.setProgress(Math.min(1.0, getVotes() / (double) Math.max(1, requiredVotes)));
 		for (Player viewer : bossBar.getPlayers()) {

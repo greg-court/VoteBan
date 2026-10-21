@@ -21,7 +21,7 @@ Build and test with Java 25 and Maven:
 mvn -B -ntp clean verify
 ```
 
-The shaded artifact is `target/voteban-2.1.1-semianarchy.3.jar`. The homelab
+The shaded artifact is `target/voteban-2.1.1-semianarchy.4.jar`. The homelab
 manifest pins its release URL, SHA-256 and source revision. This is a local
 enhancement, not a release published or supported by the upstream author.
 
