@@ -56,7 +56,6 @@ public class StartVoteTask extends Schedule {
 		// Native API bars work independently of the vanilla /bossbar command.
 		this.bossBar = voteType == VoteType.MUTE
 				? Bukkit.createBossBar("", BarColor.YELLOW, BarStyle.SOLID) : null;
-		VoteHandler.getInstance().addAlreadyVotedPlayer(playerUUID, voteType);
 
 		if (voteType.isStoppingChat()) {
 			if (!voteType.stopChatRequiresPermission()
@@ -90,6 +89,7 @@ public class StartVoteTask extends Schedule {
 	}
 
 	private void completeTask() {
+		VoteHandler.getInstance().addAlreadyVotedPlayer(playerUUID, voteType);
 		VoteHandler.getInstance().setActiveVote(null);
 		VoteHandler.getInstance().setChatDisabled(false);
 
