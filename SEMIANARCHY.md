@@ -11,9 +11,10 @@ The label includes the target's Bukkit display name (the nickname and rank colou
 on SemiAnarchyMC), votes, seconds remaining and `/addvote`. The display name is
 captured when voting starts; colour resets before the vote count. Chat
 announcements and punishment commands retain the actual account name and UUID.
-The three vote-mute announcements use `%player_colour%` from that same display
-name while `%player%` remains the real account name. This uses Bukkit colour
-codes; punishment arguments never receive presentation formatting.
+The three vote-mute announcements and added-vote confirmation use
+`%player_colour%` from that same display name while `%player%` remains the real
+account name. This uses Bukkit colour codes; punishment arguments never receive
+presentation formatting.
 Time does not control the bar's fill. Completion, plugin disable and reload remove the bar.
 There is no additional vote timer, command parser, chat scraping or private API.
 
@@ -32,7 +33,7 @@ Build and test with Java 25 and Maven:
 mvn -B -ntp clean verify
 ```
 
-The shaded artifact is `target/voteban-2.1.1-semianarchy.7.jar`. The homelab
+The shaded artifact is `target/voteban-2.1.1-semianarchy.9.jar`. The homelab
 manifest pins its release URL, SHA-256 and source revision. This is a local
 enhancement, not a release published or supported by the upstream author.
 

@@ -7,7 +7,7 @@ successful-vote-mute-broadcast: "%player_colour%%player%&c&l has been voted to b
 vote-kick-broadcast: "&eThere is currently a vote kick in progress for &a%player%&e. If you agree this player should be kicked, type &a/addvote&e. Reason: &a%reason%"
 vote-ban-broadcast: "&eThere is currently a vote ban in progress for &a%player%&e. If you agree this player should be banned, type &a/addvote&e. Reason: &a%reason%"
 vote-mute-broadcast: "&eThere is currently a vote mute in progress for %player_colour%%player%&e. If you agree this player should be muted, type &a/addvote&e. Reason: &a%reason%"
-successful-vote: "&eYou have successfully added your vote for %player%."
+successful-vote: "&eYou have successfully added your vote for %player_colour%%player%&e."
 vote-added: "&e%votedplayer% has voted for %target% to be %type%."
 kick-message: "&cYou have been voted to be kicked by players of the server!\nKick Reason: %reason%"
 already-voted-for: "&c%player% recently had a vote started on them so cannot be voted on again."
