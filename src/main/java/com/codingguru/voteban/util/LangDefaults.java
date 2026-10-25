@@ -14,7 +14,7 @@ public final class LangDefaults {
     public static final String VOTE_KICK_BROADCAST = "&eThere is currently a vote kick in progress for &a%player%&e. If you agree this player should be kicked, type &a/addvote&e. Reason: &a%reason%";
     public static final String VOTE_BAN_BROADCAST = "&eThere is currently a vote ban in progress for &a%player%&e. If you agree this player should be banned, type &a/addvote&e. Reason: &a%reason%";
     public static final String VOTE_MUTE_BROADCAST = "&eThere is currently a vote mute in progress for %player_colour%%player%&e. If you agree this player should be muted, type &a/addvote&e. Reason: &a%reason%";
-    public static final String SUCCESSFUL_VOTE = "&eYou have successfully added your vote for %player%.";
+    public static final String SUCCESSFUL_VOTE = "&eYou have successfully added your vote for %player_colour%%player%&e.";
     public static final String VOTE_ADDED = "&e%votedplayer% has voted for %target% to be %type%.";
     public static final String KICK_MESSAGE = "&cYou have been voted to be kicked by players of the server!\nKick Reason: %reason%";
     public static final String ALREADY_VOTED_FOR = "&c%player% recently had a vote started on them so cannot be voted on again.";

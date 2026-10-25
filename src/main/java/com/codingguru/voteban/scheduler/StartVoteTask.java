@@ -171,7 +171,8 @@ public class StartVoteTask extends Schedule {
 		playersVoted.add(sender.getUniqueId());
 		updateBossBar();
 
-		new MessageBuilder.Builder("successful-vote", LangDefaults.SUCCESSFUL_VOTE).set("%player%", playerName)
+		new MessageBuilder.Builder("successful-vote", LangDefaults.SUCCESSFUL_VOTE)
+				.set("%player_colour%", playerNameColour).set("%player%", playerName)
 				.send(sender);
 
 		if (voteType.isAnnouncingVotes()) {
