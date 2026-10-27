@@ -68,7 +68,7 @@ public final class LinkedDiscordMutes implements AutoCloseable, Listener {
         if (content.isBlank()) return;
         try {
             // Reasons are player text: display them literally and never notify mentions.
-            channel.sendMessage(content).allowedMentions(Set.of()).queue(
+            channel.sendMessage("**" + content + "**").allowedMentions(Set.of()).queue(
                     ignored -> {},
                     error -> logger.warning("Could not announce vote-mute in Discord: " + error.getMessage()));
         } catch (RuntimeException error) {
