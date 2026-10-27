@@ -19,7 +19,7 @@ class LinkedDiscordMutesTest {
         LinkedDiscordMutes.sendAnnouncement(capture.channel,
                 "§eVote to mute §aSome_Name§e for 20m\\\\n§eReason: **spam** @everyone <@123456789012345678> $1", capture.logger);
 
-        assertEquals("Vote to mute Some_Name for 20m\nReason: \\*\\*spam\\*\\* @everyone <@123456789012345678> $1", capture.content);
+        assertEquals("**Vote to mute Some_Name for 20m\nReason: \\*\\*spam\\*\\* @everyone <@123456789012345678> $1**", capture.content);
         assertEquals(1, capture.sends);
         assertEquals(1, capture.queues);
         assertNotNull(capture.mentions);
@@ -31,7 +31,7 @@ class LinkedDiscordMutesTest {
     void alsoHandlesSingleEscapedAndActualLineBreaksAndSkipsBlankNotices() {
         Capture capture = new Capture();
         LinkedDiscordMutes.sendAnnouncement(capture.channel, "first\\nsecond\nthird", capture.logger);
-        assertEquals("first\nsecond\nthird", capture.content);
+        assertEquals("**first\nsecond\nthird**", capture.content);
         LinkedDiscordMutes.sendAnnouncement(capture.channel, "§e  ", capture.logger);
         assertEquals(1, capture.sends);
     }
