@@ -76,6 +76,10 @@ public class MessageBuilder {
 
 	public void broadcast() {
 		Bukkit.getOnlinePlayers().forEach(this::send);
+		if ((path.equals("vote-mute-broadcast") || path.equals("successful-vote-mute-broadcast")
+				|| path.equals("failed-vote-mute-broadcast")) && PLUGIN.getDiscordMutes() != null) {
+			PLUGIN.getDiscordMutes().announce(build());
+		}
 	}
 
 	private static BukkitAudiences getAudience() {

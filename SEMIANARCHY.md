@@ -33,7 +33,7 @@ Build and test with Java 25 and Maven:
 mvn -B -ntp clean verify
 ```
 
-The shaded artifact is `target/voteban-2.1.1-semianarchy.9.jar`. The homelab
+The shaded artifact is `target/voteban-2.1.1-semianarchy.10.jar`. The homelab
 manifest pins its release URL, SHA-256 and source revision. This is a local
 enhancement, not a release published or supported by the upstream author.
 
@@ -62,3 +62,12 @@ When the bridge returns it reads the existing Essentials mute/expiry again. An
 intentional permanent staff mute is still honoured, but community votes use the
 configured temporary mute. Separately linked alternate identities require
 separate votes; there is no attempt to identify a human across accounts.
+
+Public vote-mute reminders and the successful/failed result are mirrored once per
+game broadcast into DiscordSRV's existing main server-chat channel. Private vote
+confirmations are not relayed. The same language messages supply both outputs;
+Minecraft colour codes are stripped, line breaks are retained and Discord
+formatting is escaped. Mention notifications are disabled for these notices.
+Sending uses the existing bot asynchronously; disconnected/misconfigured Discord
+or a failed send is logged without interrupting the in-game vote. There is no new
+plugin, credential, channel setting, listener or scheduler.

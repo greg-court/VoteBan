@@ -9,12 +9,16 @@ import github.scarsz.discordsrv.api.events.AccountLinkedEvent;
 import github.scarsz.discordsrv.api.events.AccountUnlinkedEvent;
 import github.scarsz.discordsrv.api.events.DiscordGuildMessagePreProcessEvent;
 import github.scarsz.discordsrv.api.events.DiscordReadyEvent;
+import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
+import github.scarsz.discordsrv.dependencies.jda.api.utils.MarkdownSanitizer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -42,6 +46,35 @@ public final class LinkedDiscordMutes implements AutoCloseable, Listener {
     public String displayName(UUID uuid, String accountName) {
         var user = essentials.getUser(uuid);
         return user == null ? accountName : user.getDisplayName();
+    }
+
+    /** Mirror the existing public vote notices using the same channel as linked mutes. */
+    public void announce(String message) {
+        if (!DiscordSRV.isReady) {
+            plugin.getLogger().warning("Could not announce vote-mute: DiscordSRV is not ready");
+            return;
+        }
+        TextChannel channel = DiscordSRV.getPlugin().getMainTextChannel();
+        if (channel == null) {
+            plugin.getLogger().warning("Could not announce vote-mute: DiscordSRV has no main chat channel");
+            return;
+        }
+        sendAnnouncement(channel, message, plugin.getLogger());
+    }
+
+    static void sendAnnouncement(TextChannel channel, String message, Logger logger) {
+        String content = MarkdownSanitizer.escape(ChatColor.stripColor(message)
+                .replace("\\\\n", "\n").replace("\\n", "\n"));
+        if (content.isBlank()) return;
+        try {
+            // Reasons are player text: display them literally and never notify mentions.
+            channel.sendMessage(content).allowedMentions(Set.of()).queue(
+                    ignored -> {},
+                    error -> logger.warning("Could not announce vote-mute in Discord: " + error.getMessage()));
+        } catch (RuntimeException error) {
+            // Discord permissions/connection failures must not interrupt the game vote.
+            logger.warning("Could not announce vote-mute in Discord: " + error.getMessage());
+        }
     }
 
     @Subscribe
