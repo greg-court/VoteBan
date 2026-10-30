@@ -1,5 +1,5 @@
 name: VoteBan
-version: 2.1.1-semianarchy.10
+version: 2.1.1-semianarchy.12
 api-version: 1.13
 main: com.codingguru.voteban.VoteBan
 authors: [CodingGuru]
