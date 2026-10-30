@@ -2,6 +2,7 @@ package com.codingguru.voteban.discord;
 
 import com.codingguru.voteban.VoteBan;
 import com.codingguru.voteban.util.MuteStatus;
+import com.codingguru.voteban.util.ServerTypeUtil;
 import com.earth2me.essentials.Essentials;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.Subscribe;
@@ -95,7 +96,7 @@ public final class LinkedDiscordMutes implements AutoCloseable, Listener {
     private void refresh() {
         int requested = revision.incrementAndGet();
         // Account links may use JDBC. Keep storage access off the server thread.
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        Runnable load = () -> {
             Map<String, UUID> links = DiscordSRV.getPlugin().getAccountLinkManager().getLinkedAccounts();
             Set<UUID> uuids;
             // The file-backed API returns its live map; copy before loading users.
@@ -108,7 +109,12 @@ public final class LinkedDiscordMutes implements AutoCloseable, Listener {
                 if (user != null && user.getName() != null) players.put(user.getName(), uuid);
             }
             if (requested == revision.get()) linkedPlayers = Map.copyOf(players);
-        });
+        };
+        if (plugin.getServerType() == ServerTypeUtil.FOLIA) {
+            Bukkit.getAsyncScheduler().runNow(plugin, task -> load.run());
+        } else {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, load);
+        }
     }
 
     @Subscribe

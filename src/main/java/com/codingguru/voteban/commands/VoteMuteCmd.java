@@ -18,6 +18,7 @@ import com.earth2me.essentials.Essentials;
 import com.codingguru.voteban.util.MuteStatus;
 import com.codingguru.voteban.handlers.VoteHandler;
 import com.codingguru.voteban.scheduler.StartVoteTask;
+import com.codingguru.voteban.scheduler.Schedule;
 import com.codingguru.voteban.scheduler.VoteType;
 import com.codingguru.voteban.util.LangDefaults;
 import com.codingguru.voteban.util.MessageBuilder;
@@ -88,20 +89,23 @@ public class VoteMuteCmd implements TabExecutor {
 			var permissions = LuckPermsProvider.get();
 			permissions.getUserManager().loadUser(target.getUniqueId()).whenComplete((user, error) -> {
 				if (!plugin.isEnabled()) return;
-				Bukkit.getScheduler().runTask(plugin, () -> {
-					if (error != null) {
-						sender.sendMessage("Could not check the target's permissions; vote not started.");
-						plugin.getLogger().warning("Offline vote-mute permission lookup failed: " + error);
-						return;
+				new Schedule(plugin) {
+					@Override
+					public void run() {
+						if (error != null) {
+							sender.sendMessage("Could not check the target's permissions; vote not started.");
+							plugin.getLogger().warning("Offline vote-mute permission lookup failed: " + error);
+							return;
+						}
+						var data = user.getCachedData().getPermissionData(permissions.getContextManager().getStaticQueryOptions());
+						var wildcard = data.checkPermission("voteban.*");
+						var bypass = data.checkPermission("voteban.bypass");
+						boolean exempt = wildcard.asBoolean() || bypass.asBoolean()
+								|| data.checkPermission("essentials.mute.exempt").asBoolean()
+								|| (operator && (wildcard != Tristate.FALSE || bypass != Tristate.FALSE));
+						startVote((Player) sender, offline, reason, exempt);
 					}
-					var data = user.getCachedData().getPermissionData(permissions.getContextManager().getStaticQueryOptions());
-					var wildcard = data.checkPermission("voteban.*");
-					var bypass = data.checkPermission("voteban.bypass");
-					boolean exempt = wildcard.asBoolean() || bypass.asBoolean()
-							|| data.checkPermission("essentials.mute.exempt").asBoolean()
-							|| (operator && (wildcard != Tristate.FALSE || bypass != Tristate.FALSE));
-					startVote((Player) sender, offline, reason, exempt);
-				});
+				}.runTask();
 			});
 		}
 		return true;
