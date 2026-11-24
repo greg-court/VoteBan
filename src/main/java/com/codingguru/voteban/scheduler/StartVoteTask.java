@@ -29,10 +29,9 @@ public class StartVoteTask extends Schedule {
 	private final String reason;
 	private final VoteType voteType;
 	private final Set<UUID> playersVoted = new HashSet<>();
-	private final Set<UUID> eligibleVoters;
-	private final int eligibleCount;
+	private final boolean countActivePlayers;
+	private final int onlineAtStart;
 	private int countdown;
-	private final int requiredVotes;
 	private final BossBar bossBar;
 
 	public StartVoteTask(VoteBan plugin, Player target, Player sender, String reason, VoteType voteType,
@@ -53,12 +52,10 @@ public class StartVoteTask extends Schedule {
 		this.playerNameColour = ChatColor.getLastColors(displayName);
 		this.voteType = voteType;
 		this.countdown = voteType.getCountdown();
-		var calculator = voteType.getVoteCalculatorType();
-		this.eligibleVoters = voteType == VoteType.MUTE && calculator == VoteResultCalculatorType.SERVER_PERCENTAGE
-				&& plugin.getServerType() != ServerTypeUtil.SPIGOT
-				? activeVoters() : null;
-		this.eligibleCount = eligibleVoters == null ? Bukkit.getOnlinePlayers().size() : eligibleVoters.size();
-		this.requiredVotes = calculator.requiredVotes(voteType.getMinVotes(), eligibleCount);
+		this.countActivePlayers = voteType == VoteType.MUTE
+				&& voteType.getVoteCalculatorType() == VoteResultCalculatorType.SERVER_PERCENTAGE
+				&& plugin.getServerType() != ServerTypeUtil.SPIGOT;
+		this.onlineAtStart = Bukkit.getOnlinePlayers().size();
 		// Native API bars work independently of the vanilla /bossbar command.
 		this.bossBar = voteType == VoteType.MUTE
 				? Bukkit.createBossBar("", BarColor.YELLOW, BarStyle.SOLID) : null;
@@ -77,12 +74,11 @@ public class StartVoteTask extends Schedule {
 		if (VoteHandler.getInstance().getActiveVote() == this) updateBossBar();
 	}
 
-	private static Set<UUID> activeVoters() {
-		Set<UUID> active = new HashSet<>();
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			if (player.getIdleDuration().compareTo(AFK_AFTER) < 0) active.add(player.getUniqueId());
-		}
-		return Set.copyOf(active);
+	private int voterCount() {
+		if (!countActivePlayers) return onlineAtStart;
+		return (int) Bukkit.getOnlinePlayers().stream()
+				.filter(player -> player.getIdleDuration().compareTo(AFK_AFTER) < 0)
+				.count();
 	}
 
 	@Override
@@ -108,7 +104,7 @@ public class StartVoteTask extends Schedule {
 		VoteHandler.getInstance().setActiveVote(null);
 		VoteHandler.getInstance().setChatDisabled(false);
 
-		boolean isSuccessful = voteType.getVoteCalculatorType().isSuccessful(voteType, getVotes(), eligibleCount);
+		boolean isSuccessful = voteType.getVoteCalculatorType().isSuccessful(voteType, getVotes(), voterCount());
 
 		if (isSuccessful) {
 			voteType.execute(playerUUID, playerName, reason);
@@ -180,10 +176,6 @@ public class StartVoteTask extends Schedule {
 
 	public void addVote(Player sender) {
 		UUID voter = sender.getUniqueId();
-		if (eligibleVoters != null && !eligibleVoters.contains(voter)) {
-			new MessageBuilder.Builder("vote-not-eligible", LangDefaults.VOTE_NOT_ELIGIBLE).send(sender);
-			return;
-		}
 		if (!playersVoted.add(voter)) {
 			new MessageBuilder.Builder("already-voted", LangDefaults.ALREADY_VOTED).send(sender);
 			return;
@@ -206,6 +198,7 @@ public class StartVoteTask extends Schedule {
 
 	private void updateBossBar() {
 		if (bossBar == null) return;
+		int requiredVotes = voteType.getVoteCalculatorType().requiredVotes(voteType.getMinVotes(), voterCount());
 		bossBar.setTitle("Mute " + playerDisplayName + ChatColor.RESET + " · " + getVotes() + "/" + requiredVotes
 				+ " votes · " + countdown + "s left · /addvote");
 		bossBar.setProgress(Math.min(1.0, getVotes() / (double) Math.max(1, requiredVotes)));
