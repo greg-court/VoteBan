@@ -6,7 +6,10 @@ licence. Existing commands, punishment rules, cooldowns and configuration remain
 
 The MUTE vote task creates a native Bukkit bossbar. Progress is votes received
 divided by the minimum count that passes VoteBan's own decision rule, including
-its existing percentage rounding and the population captured when voting starts.
+its existing percentage rounding. On Paper-based servers, percentage-based mute
+votes count online players who have been idle for less than five minutes when
+the vote opens. The server's native idle timer supplies this check, and the same
+list determines who can vote for the rest of the countdown.
 The label includes the target's Bukkit display name (the nickname and rank colour
 on SemiAnarchyMC), votes, seconds remaining and `/addvote`. The display name is
 captured when voting starts; colour resets before the vote count. Chat
@@ -33,7 +36,7 @@ Build and test with Java 25 and Maven:
 mvn -B -ntp clean verify
 ```
 
-The shaded artifact is `target/voteban-2.1.1-semianarchy.10.jar`. The homelab
+The shaded artifact is `target/voteban-<version>.jar`. The homelab
 manifest pins its release URL, SHA-256 and source revision. This is a local
 enhancement, not a release published or supported by the upstream author.
 

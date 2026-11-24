@@ -80,9 +80,14 @@ public class VoteMuteCmd implements TabExecutor {
 
 		String reason = args.length == 1 ? null : String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 		if (target instanceof Player online) {
-			startVote((Player) sender, target, reason,
-					online.hasPermission("voteban.*") || online.hasPermission("voteban.bypass")
-					|| online.hasPermission("essentials.mute.exempt"));
+			boolean exempt = online.hasPermission("voteban.*") || online.hasPermission("voteban.bypass")
+					|| online.hasPermission("essentials.mute.exempt");
+			new Schedule(plugin) {
+				@Override
+				public void run() {
+					startVote((Player) sender, online, reason, exempt);
+				}
+			}.runTask();
 		} else {
 			OfflinePlayer offline = target;
 			boolean operator = target.isOp();
@@ -112,6 +117,7 @@ public class VoteMuteCmd implements TabExecutor {
 	}
 
 	private void startVote(Player sender, OfflinePlayer target, String reason, boolean exempt) {
+		if (!sender.isOnline()) return;
 		// A second command may have started a vote while an offline permission lookup ran.
 		if (VoteHandler.getInstance().hasActiveVote()) {
 			new MessageBuilder.Builder("active-vote", LangDefaults.ACTIVE_VOTE).send(sender);
