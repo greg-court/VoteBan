@@ -29,8 +29,8 @@ public class StartVoteTask extends Schedule {
 	private final String reason;
 	private final VoteType voteType;
 	private final Set<UUID> playersVoted = new HashSet<>();
-	private final boolean countActivePlayers;
-	private final int onlineAtStart;
+	private final int playerCountAtStart;
+	private final int requiredVotes;
 	private int countdown;
 	private final BossBar bossBar;
 
@@ -52,10 +52,15 @@ public class StartVoteTask extends Schedule {
 		this.playerNameColour = ChatColor.getLastColors(displayName);
 		this.voteType = voteType;
 		this.countdown = voteType.getCountdown();
-		this.countActivePlayers = voteType == VoteType.MUTE
-				&& voteType.getVoteCalculatorType() == VoteResultCalculatorType.SERVER_PERCENTAGE
+		var calculator = voteType.getVoteCalculatorType();
+		boolean countActivePlayers = voteType == VoteType.MUTE
+				&& calculator == VoteResultCalculatorType.SERVER_PERCENTAGE
 				&& plugin.getServerType() != ServerTypeUtil.SPIGOT;
-		this.onlineAtStart = Bukkit.getOnlinePlayers().size();
+		var onlinePlayers = Bukkit.getOnlinePlayers();
+		this.playerCountAtStart = countActivePlayers
+				? (int) onlinePlayers.stream().filter(p -> p.getIdleDuration().compareTo(AFK_AFTER) < 0).count()
+				: onlinePlayers.size();
+		this.requiredVotes = calculator.requiredVotes(voteType.getMinVotes(), playerCountAtStart);
 		// Native API bars work independently of the vanilla /bossbar command.
 		this.bossBar = voteType == VoteType.MUTE
 				? Bukkit.createBossBar("", BarColor.YELLOW, BarStyle.SOLID) : null;
@@ -72,13 +77,6 @@ public class StartVoteTask extends Schedule {
 			addVote(sender);
 		}
 		if (VoteHandler.getInstance().getActiveVote() == this) updateBossBar();
-	}
-
-	private int voterCount() {
-		if (!countActivePlayers) return onlineAtStart;
-		return (int) Bukkit.getOnlinePlayers().stream()
-				.filter(player -> player.getIdleDuration().compareTo(AFK_AFTER) < 0)
-				.count();
 	}
 
 	@Override
@@ -104,7 +102,7 @@ public class StartVoteTask extends Schedule {
 		VoteHandler.getInstance().setActiveVote(null);
 		VoteHandler.getInstance().setChatDisabled(false);
 
-		boolean isSuccessful = voteType.getVoteCalculatorType().isSuccessful(voteType, getVotes(), voterCount());
+		boolean isSuccessful = voteType.getVoteCalculatorType().isSuccessful(voteType, getVotes(), playerCountAtStart);
 
 		if (isSuccessful) {
 			voteType.execute(playerUUID, playerName, reason);
@@ -198,7 +196,6 @@ public class StartVoteTask extends Schedule {
 
 	private void updateBossBar() {
 		if (bossBar == null) return;
-		int requiredVotes = voteType.getVoteCalculatorType().requiredVotes(voteType.getMinVotes(), voterCount());
 		bossBar.setTitle("Mute " + playerDisplayName + ChatColor.RESET + " · " + getVotes() + "/" + requiredVotes
 				+ " votes · " + countdown + "s left · /addvote");
 		bossBar.setProgress(Math.min(1.0, getVotes() / (double) Math.max(1, requiredVotes)));
