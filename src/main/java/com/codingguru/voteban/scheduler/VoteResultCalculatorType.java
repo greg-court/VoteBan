@@ -23,14 +23,12 @@ public enum VoteResultCalculatorType {
 		case MIN_VOTES:
 			return votes >= minimum;
 		case SERVER_PERCENTAGE:
-			int percentage = calculatePercentage(votes, playersOnline);
-			return percentage >= minimum;
+			return playersOnline > 0 && calculatePercentage(votes, playersOnline) >= minimum;
 		}
 		return false;
 	}
 
-	// Use the existing decision rule, including its percentage rounding. A display
-	// must not invent a different threshold or change the electorate after joins/quits.
+	// Match the final decision rule, including its percentage rounding.
 	int requiredVotes(int minimum, int playersOnline) {
 		if (this == MIN_VOTES) return minimum;
 		for (int votes = 0; votes <= playersOnline; votes++) {

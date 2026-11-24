@@ -22,7 +22,6 @@ public final class LangDefaults {
     public static final String ALREADY_MUTED = "&c%player% is already muted.";
     public static final String CHAT_DISABLED = "&cChat is currently disabled because there is a vote in progress.";
     public static final String ALREADY_VOTED = "&cYou have already voted for this.";
-    public static final String VOTE_NOT_ELIGIBLE = "&cOnly players who were online and active when the vote started can vote.";
     public static final String SERVER_OPERATOR = "&cYou cannot ban another server operator. Please demote this player first then execute this command again.";
     public static final String CANNOT_EXECUTE_THIS_PLAYER = "&cYou cannot start a vote command on: %player%";
     public static final String CANNOT_EXECUTE_YOURSELF = "&cYou cannot execute this command on yourself.";
