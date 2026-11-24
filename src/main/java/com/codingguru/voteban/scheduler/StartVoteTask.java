@@ -1,6 +1,8 @@
 package com.codingguru.voteban.scheduler;
 
-import java.util.List;
+import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -14,9 +16,11 @@ import com.codingguru.voteban.VoteBan;
 import com.codingguru.voteban.handlers.VoteHandler;
 import com.codingguru.voteban.util.LangDefaults;
 import com.codingguru.voteban.util.MessageBuilder;
-import com.google.common.collect.Lists;
+import com.codingguru.voteban.util.ServerTypeUtil;
 
 public class StartVoteTask extends Schedule {
+
+	private static final Duration AFK_AFTER = Duration.ofMinutes(5);
 
 	private final UUID playerUUID;
 	private final String playerName;
@@ -24,8 +28,9 @@ public class StartVoteTask extends Schedule {
 	private final String playerNameColour;
 	private final String reason;
 	private final VoteType voteType;
-	private List<UUID> playersVoted;
-	private int playersOnline;
+	private final Set<UUID> playersVoted = new HashSet<>();
+	private final Set<UUID> eligibleVoters;
+	private final int eligibleCount;
 	private int countdown;
 	private final int requiredVotes;
 	private final BossBar bossBar;
@@ -38,7 +43,6 @@ public class StartVoteTask extends Schedule {
 	public StartVoteTask(VoteBan plugin, UUID targetId, String accountName, String displayName, Player sender,
 			String reason, VoteType voteType, boolean addVote) {
 		super(plugin);
-		VoteHandler.getInstance().setActiveVote(this);
 		this.reason = reason == null
 				? new MessageBuilder.Builder("no-ban-reason", LangDefaults.NO_BAN_REASON).buildString()
 				: reason;
@@ -48,14 +52,17 @@ public class StartVoteTask extends Schedule {
 		this.playerDisplayName = displayName;
 		this.playerNameColour = ChatColor.getLastColors(displayName);
 		this.voteType = voteType;
-		this.playersVoted = Lists.newArrayList();
 		this.countdown = voteType.getCountdown();
-		this.playersOnline = Bukkit.getOnlinePlayers().size();
-		this.requiredVotes = voteType.getVoteCalculatorType()
-				.requiredVotes(voteType.getMinVotes(), playersOnline);
+		var calculator = voteType.getVoteCalculatorType();
+		this.eligibleVoters = voteType == VoteType.MUTE && calculator == VoteResultCalculatorType.SERVER_PERCENTAGE
+				&& plugin.getServerType() != ServerTypeUtil.SPIGOT
+				? activeVoters() : null;
+		this.eligibleCount = eligibleVoters == null ? Bukkit.getOnlinePlayers().size() : eligibleVoters.size();
+		this.requiredVotes = calculator.requiredVotes(voteType.getMinVotes(), eligibleCount);
 		// Native API bars work independently of the vanilla /bossbar command.
 		this.bossBar = voteType == VoteType.MUTE
 				? Bukkit.createBossBar("", BarColor.YELLOW, BarStyle.SOLID) : null;
+		VoteHandler.getInstance().setActiveVote(this);
 
 		if (voteType.isStoppingChat()) {
 			if (!voteType.stopChatRequiresPermission()
@@ -68,6 +75,14 @@ public class StartVoteTask extends Schedule {
 			addVote(sender);
 		}
 		if (VoteHandler.getInstance().getActiveVote() == this) updateBossBar();
+	}
+
+	private static Set<UUID> activeVoters() {
+		Set<UUID> active = new HashSet<>();
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			if (player.getIdleDuration().compareTo(AFK_AFTER) < 0) active.add(player.getUniqueId());
+		}
+		return Set.copyOf(active);
 	}
 
 	@Override
@@ -93,7 +108,7 @@ public class StartVoteTask extends Schedule {
 		VoteHandler.getInstance().setActiveVote(null);
 		VoteHandler.getInstance().setChatDisabled(false);
 
-		boolean isSuccessful = voteType.getVoteCalculatorType().isSuccessful(voteType, getVotes(), playersOnline);
+		boolean isSuccessful = voteType.getVoteCalculatorType().isSuccessful(voteType, getVotes(), eligibleCount);
 
 		if (isSuccessful) {
 			voteType.execute(playerUUID, playerName, reason);
@@ -163,12 +178,16 @@ public class StartVoteTask extends Schedule {
 		return playersVoted.size();
 	}
 
-	public boolean canVote(Player sender) {
-		return !playersVoted.contains(sender.getUniqueId());
-	}
-
 	public void addVote(Player sender) {
-		playersVoted.add(sender.getUniqueId());
+		UUID voter = sender.getUniqueId();
+		if (eligibleVoters != null && !eligibleVoters.contains(voter)) {
+			new MessageBuilder.Builder("vote-not-eligible", LangDefaults.VOTE_NOT_ELIGIBLE).send(sender);
+			return;
+		}
+		if (!playersVoted.add(voter)) {
+			new MessageBuilder.Builder("already-voted", LangDefaults.ALREADY_VOTED).send(sender);
+			return;
+		}
 		updateBossBar();
 
 		new MessageBuilder.Builder("successful-vote", LangDefaults.SUCCESSFUL_VOTE)

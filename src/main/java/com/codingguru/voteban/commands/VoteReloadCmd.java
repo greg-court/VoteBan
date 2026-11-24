@@ -5,6 +5,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import com.codingguru.voteban.VoteBan;
+import com.codingguru.voteban.scheduler.Schedule;
 import com.codingguru.voteban.util.LangDefaults;
 import com.codingguru.voteban.util.MessageBuilder;
 
@@ -23,8 +24,13 @@ public class VoteReloadCmd implements CommandExecutor {
 			return false;
 		}
 
-		plugin.reload();
-		new MessageBuilder.Builder("reload", LangDefaults.RELOAD).send(sender);
+		new Schedule(plugin) {
+			@Override
+			public void run() {
+				plugin.reload();
+				new MessageBuilder.Builder("reload", LangDefaults.RELOAD).send(sender);
+			}
+		}.runTask();
 		return false;
 	}
 }

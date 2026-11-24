@@ -22,7 +22,7 @@ public class VoteHandler {
 	private final VoteBan plugin;
 	private boolean isChatDisabled;
 	private Map<UUID, VotedDetails> alreadyVotedPlayers;
-	private StartVoteTask activeVote;
+	private volatile StartVoteTask activeVote;
 
 	public void setActiveVote(StartVoteTask activeVote) {
 		this.activeVote = activeVote;
